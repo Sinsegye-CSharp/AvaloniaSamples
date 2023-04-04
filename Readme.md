@@ -5,7 +5,7 @@
 
 ## 目录介绍
 本资料包含两部分内容:   
-  * [Samples](http://gitlab.sinsegye.com.cn/lilaifu/avalonia-samples/-/tree/main/Samples)：此目录下包含使用Avalonia开发的一些常用的Demo，可以下载进行参阅。  
+  * [Samples](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/tree/main/Samples)：此目录下包含使用Avalonia开发的一些常用的Demo，可以下载进行参阅。  
 
 
-### 更多Avalonia开发资料及相应问题，请参阅[Wiki](http://gitlab.sinsegye.com.cn/lilaifu/avalonia-samples/-/wikis/home)
+### 更多Avalonia开发资料及相应问题，请参阅[Wiki](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/wikis/home)
