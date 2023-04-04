@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraDemo", "CameraDemo\CameraDemo.csproj", "{82D7DB28-F1D0-400F-8CFC-7F8559444FC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKSDK", "HKSDK\HKSDK.csproj", "{E0C3B0D0-085B-4F07-B162-80209B655640}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82D7DB28-F1D0-400F-8CFC-7F8559444FC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82D7DB28-F1D0-400F-8CFC-7F8559444FC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82D7DB28-F1D0-400F-8CFC-7F8559444FC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82D7DB28-F1D0-400F-8CFC-7F8559444FC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0C3B0D0-085B-4F07-B162-80209B655640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0C3B0D0-085B-4F07-B162-80209B655640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0C3B0D0-085B-4F07-B162-80209B655640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0C3B0D0-085B-4F07-B162-80209B655640}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

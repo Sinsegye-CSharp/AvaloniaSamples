@@ -1,0 +1,21 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:liv="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:viewModels="clr-namespace:AvaloniaDemo.ViewModels"
+             x:Class="AvaloniaDemo.Views.ChartView">
+    <Design.DataContext>
+        <viewModels:ChartViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Margin="20,0,0,0" Text="图表演示Demo界面" />
+        </StackPanel>
+        <liv:CartesianChart Grid.Row="1" Margin="20" Series="{Binding CartesianChartLineSeries}"
+                            YAxes="{Binding CartesianChartYAxis}"
+                            TooltipTextPaint="{Binding TooltipTextPaint}" AnimationsSpeed="00:00:00.500"
+                            XAxes="{Binding CartesianLineChartXAxis}"/>
+    </Grid>
+</UserControl>

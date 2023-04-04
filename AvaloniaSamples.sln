@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{B93D2B5F-7D17-4919-B363-02E363AE408A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MVSCameraDemo", "MVSCameraDemo", "{8382B803-6D74-40AA-A909-094028E06B26}"
+	ProjectSection(SolutionItems) = preProject
+		Samples\MVSCameraDemo\Readme.md = Samples\MVSCameraDemo\Readme.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraDemo", "Samples\MVSCameraDemo\CameraDemo\CameraDemo.csproj", "{7778DEF8-09B0-4B32-A714-AAB237793F75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKSDK", "Samples\MVSCameraDemo\HKSDK\HKSDK.csproj", "{1502CD99-72A4-4894-8981-834DD9FA3036}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LineDemo", "LineDemo", "{26EE2E3B-A005-42C6-AC79-4F09325E49E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LineDemo", "Samples\LineDemo\LineDemo\LineDemo.csproj", "{1F5D1719-65A4-48AB-BAA8-485EBB8AC4BA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpcUADemo", "OpcUADemo", "{06A3D0BE-7497-451E-AD92-F92F8B5557B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpcUAClient", "Samples\OpcUADemo\OpcUAClient\OpcUAClient.csproj", "{9EBC3A71-EA2E-4B2D-9A01-CF68E90F7078}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7778DEF8-09B0-4B32-A714-AAB237793F75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7778DEF8-09B0-4B32-A714-AAB237793F75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7778DEF8-09B0-4B32-A714-AAB237793F75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7778DEF8-09B0-4B32-A714-AAB237793F75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1502CD99-72A4-4894-8981-834DD9FA3036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1502CD99-72A4-4894-8981-834DD9FA3036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1502CD99-72A4-4894-8981-834DD9FA3036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1502CD99-72A4-4894-8981-834DD9FA3036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F5D1719-65A4-48AB-BAA8-485EBB8AC4BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F5D1719-65A4-48AB-BAA8-485EBB8AC4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F5D1719-65A4-48AB-BAA8-485EBB8AC4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F5D1719-65A4-48AB-BAA8-485EBB8AC4BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{259728FA-5373-4D95-94A2-3E40420EC291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{259728FA-5373-4D95-94A2-3E40420EC291}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{259728FA-5373-4D95-94A2-3E40420EC291}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{259728FA-5373-4D95-94A2-3E40420EC291}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EBC3A71-EA2E-4B2D-9A01-CF68E90F7078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EBC3A71-EA2E-4B2D-9A01-CF68E90F7078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EBC3A71-EA2E-4B2D-9A01-CF68E90F7078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EBC3A71-EA2E-4B2D-9A01-CF68E90F7078}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8382B803-6D74-40AA-A909-094028E06B26} = {B93D2B5F-7D17-4919-B363-02E363AE408A}
+		{7778DEF8-09B0-4B32-A714-AAB237793F75} = {8382B803-6D74-40AA-A909-094028E06B26}
+		{1502CD99-72A4-4894-8981-834DD9FA3036} = {8382B803-6D74-40AA-A909-094028E06B26}
+		{26EE2E3B-A005-42C6-AC79-4F09325E49E0} = {B93D2B5F-7D17-4919-B363-02E363AE408A}
+		{1F5D1719-65A4-48AB-BAA8-485EBB8AC4BA} = {26EE2E3B-A005-42C6-AC79-4F09325E49E0}
+		{06A3D0BE-7497-451E-AD92-F92F8B5557B7} = {B93D2B5F-7D17-4919-B363-02E363AE408A}
+		{9EBC3A71-EA2E-4B2D-9A01-CF68E90F7078} = {06A3D0BE-7497-451E-AD92-F92F8B5557B7}
+	EndGlobalSection
+EndGlobal
