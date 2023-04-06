@@ -11,21 +11,23 @@ using OpcUAClient.Models;
 
 namespace OpcUAClient;
 
-public class UAClient : IDisposable
+public class UaClient : IDisposable
 {
     #region Private Fields
 
     // OPC UA配置
     private readonly ApplicationConfiguration _configuration;
 
-    // OPC UA会话
-    private ISession? _session;
-
     private readonly IDictionary<Guid, Subscription> _subscriptionsDictionary;
 
     #endregion
 
     #region Public Properties
+
+    /// <summary>
+    /// OPC UA会话
+    /// </summary>
+    public ISession? Session { get; set; }
 
     /// <summary>
     /// The session keepalive interval to be used in ms.
@@ -56,7 +58,7 @@ public class UAClient : IDisposable
     /// </summary>
     /// <param name="configuration">OPC UA客户端的配置</param>
     /// <param name="userIdentity">连接服务端的凭据</param>
-    public UAClient(ApplicationConfiguration configuration, UserIdentity? userIdentity)
+    public UaClient(ApplicationConfiguration configuration, UserIdentity? userIdentity)
     {
         _configuration = configuration;
         UserIdentity = userIdentity ?? new UserIdentity();
@@ -64,6 +66,8 @@ public class UAClient : IDisposable
     }
 
     #endregion
+
+    #region Connect Disconnect
 
     /// <summary>
     /// 连接OPC UA Server
@@ -78,7 +82,7 @@ public class UAClient : IDisposable
 
         try
         {
-            if (_session is { Connected: true })
+            if (Session is { Connected: true })
             {
                 Debug.WriteLine("Session already connected!");
                 return false;
@@ -90,16 +94,16 @@ public class UAClient : IDisposable
             var endpointConfiguration = EndpointConfiguration.Create(_configuration);
             var endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
-            var session = await Session.Create(_configuration, endpoint, false, false,
+            var session = await Opc.Ua.Client.Session.Create(_configuration, endpoint, false, false,
                 _configuration.ApplicationName, SessionLifeTime, UserIdentity, null).ConfigureAwait(false);
 
             if (session is not { Connected: true }) return false;
 
-            _session = session;
+            Session = session;
 
-            _session.KeepAliveInterval = KeepAliveInterval;
+            Session.KeepAliveInterval = KeepAliveInterval;
 
-            Debug.WriteLine($"New Session Created with SessionName = {_session.SessionName}");
+            Debug.WriteLine($"New Session Created with SessionName = {Session.SessionName}");
 
             return true;
         }
@@ -115,14 +119,14 @@ public class UAClient : IDisposable
     /// </summary>
     public async Task<bool> DisconnectAsync()
     {
-        if (_session == null) return true;
+        if (Session == null) return true;
 
         Debug.WriteLine("Disconnecting...");
 
-        await _session.RemoveSubscriptionsAsync(_subscriptionsDictionary.Values);
-        await _session.CloseAsync();
-        _session.Dispose();
-        _session = null;
+        await Session.RemoveSubscriptionsAsync(_subscriptionsDictionary.Values);
+        await Session.CloseAsync();
+        Session.Dispose();
+        Session = null;
 
         Debug.WriteLine("Session Disconnected.");
 
@@ -131,8 +135,12 @@ public class UAClient : IDisposable
 
     public void Dispose()
     {
-        Utils.SilentDispose(_session);
+        Utils.SilentDispose(Session);
     }
+
+    #endregion
+
+    #region Get Node Info
 
     /// <summary>
     /// 获取指定节点下的子节点
@@ -141,7 +149,7 @@ public class UAClient : IDisposable
     /// <returns></returns>
     public IEnumerable<NodeModel> GetChildNodes(NodeId? nodeId)
     {
-        if (_session is null) throw new NullReferenceException("Session is Null");
+        if (Session is null) throw new NullReferenceException("Session is Null");
 
         var referenceDescriptionCollection = GetReferenceDescriptionCollection(nodeId);
         var result = new List<NodeModel>();
@@ -160,15 +168,79 @@ public class UAClient : IDisposable
         return result;
     }
 
+    /// <summary>
+    /// 获取节点某个属性的信息
+    /// </summary>
+    /// <param name="nodeId">节点的ID</param>
+    /// <param name="attributeIds">属性ID，值参考Attributes枚举</param>
+    /// <returns>获取的结果</returns>
+    /// <exception cref="NullReferenceException"></exception>
+    public DataValueCollection GetNodeAttributesInfo(NodeId nodeId, List<uint> attributeIds)
+    {
+        if (Session is null) throw new NullReferenceException("Session is Null");
+
+        var nodesToRead = new ReadValueIdCollection();
+        nodesToRead.AddRange(attributeIds.Select(attributeId =>
+            new ReadValueId { NodeId = nodeId, AttributeId = attributeId }));
+
+        // read all values.
+        Session.Read(null, 0, TimestampsToReturn.Neither, nodesToRead, out var results,
+            out var diagnosticInfos);
+        ClientBase.ValidateResponse(results, nodesToRead);
+        ClientBase.ValidateDiagnosticInfos(diagnosticInfos, nodesToRead);
+
+        return results;
+    }
+
+    /// <summary>
+    /// 获取节点某个属性的信息
+    /// </summary>
+    /// <param name="nodeId">节点的ID</param>
+    /// <param name="attributeId">属性ID，值参考Attributes枚举</param>
+    /// <returns>获取的结果</returns>
+    /// <exception cref="NullReferenceException"></exception>
+    public async Task<DataValue> GetNodeAttributesInfoAsync(NodeId nodeId, uint attributeId)
+    {
+        if (Session is null) throw new NullReferenceException("Session is Null");
+
+        var nodesToRead = new ReadValueIdCollection
+        {
+            new ReadValueId
+            {
+                NodeId = nodeId,
+                AttributeId = attributeId
+            }
+        };
+
+        // read all values.
+        var response =
+            await Session.ReadAsync(null, 0, TimestampsToReturn.Neither, nodesToRead, CancellationToken.None);
+        ClientBase.ValidateResponse(response.Results, nodesToRead);
+        ClientBase.ValidateDiagnosticInfos(response.DiagnosticInfos, nodesToRead);
+
+        return response.Results.First();
+    }
+
+    /// <summary>
+    /// 获取节点信息
+    /// </summary>
+    /// <param name="nodeId">节点ID</param>
+    /// <returns>返回的结果</returns>
     public async Task<NodeInfo> GetNodeInfoAsync(NodeId nodeId)
     {
         var result = await GetNodesInfoAsync(new List<NodeId> { nodeId });
         return result.First();
     }
 
+    /// <summary>
+    /// 获取节点列表信息
+    /// </summary>
+    /// <param name="nodeIds">节点列表</param>
+    /// <returns>节点信息列表</returns>
+    /// <exception cref="NullReferenceException">输入参数为空</exception>
     public async Task<IEnumerable<NodeInfo>> GetNodesInfoAsync(List<NodeId> nodeIds)
     {
-        if (_session is null) throw new NullReferenceException("Session is Null");
+        if (Session is null) throw new NullReferenceException("Session is Null");
 
         var nodesToRead = new ReadValueIdCollection();
 
@@ -198,7 +270,7 @@ public class UAClient : IDisposable
 
         // read all values.
         var response =
-            await _session.ReadAsync(null, 0, TimestampsToReturn.Neither, nodesToRead, CancellationToken.None);
+            await Session.ReadAsync(null, 0, TimestampsToReturn.Both, nodesToRead, CancellationToken.None);
         ClientBase.ValidateResponse(response.Results, nodesToRead);
         ClientBase.ValidateDiagnosticInfos(response.DiagnosticInfos, nodesToRead);
 
@@ -216,14 +288,17 @@ public class UAClient : IDisposable
             };
             if ((NodeClass)info[0].WrappedValue.Value == NodeClass.Variable)
             {
-                nodeInfo.Type = info[0]?.WrappedValue.TypeInfo.BuiltInType.ToString() ?? "";
-                nodeInfo.Value = info[1]?.WrappedValue.Value?.ToString() ?? "";
-                nodeInfo.Name = info[2]?.WrappedValue.Value?.ToString() ?? "";
-                nodeInfo.Description = info[3]?.WrappedValue.Value?.ToString() ?? "";
+                if (info[1] is not null)
+                {
+                    nodeInfo.Type = info[1]?.WrappedValue.TypeInfo.BuiltInType.ToString() ?? "";
+                    nodeInfo.Value = info[1]?.WrappedValue.Value?.ToString() ?? "";
+                    nodeInfo.Name = info[2]?.WrappedValue.Value?.ToString() ?? "";
+                    nodeInfo.Description = info[3]?.WrappedValue.Value?.ToString() ?? "";
+                }
             }
             else if ((NodeClass)info[0].WrappedValue.Value == NodeClass.Object)
             {
-                nodeInfo.Type = ((NodeClass)info[0].WrappedValue.Value).ToString() ?? "";
+                nodeInfo.Type = ((NodeClass)info[0].WrappedValue.Value).ToString();
                 nodeInfo.Value = "";
                 nodeInfo.Name = info[2].WrappedValue.Value.ToString() ?? "";
                 nodeInfo.Description = info[3]?.WrappedValue.Value?.ToString() ?? "";
@@ -235,12 +310,95 @@ public class UAClient : IDisposable
         return result;
     }
 
+    #endregion
+
+    #region Read Write
+
+    /// <summary>
+    /// 读取某个节点的值
+    /// </summary>
+    /// <param name="nodeId">节点的id</param>
+    /// <typeparam name="T">期望的节点的值类型</typeparam>
+    /// <returns>读取的值</returns>
+    /// <exception cref="NullReferenceException">参数为空</exception>
+    public async Task<T?> ReadValueAsync<T>(NodeId nodeId)
+    {
+        if (Session is null) throw new NullReferenceException("Session is Null");
+
+        var result = await Session.ReadValueAsync(nodeId);
+        if (result is null) return default;
+
+        return (T)result.Value;
+    }
+
+    /// <summary>
+    /// 读取一系列节点的值
+    /// </summary>
+    /// <param name="nodeIds">节点集合</param>
+    /// <typeparam name="T">值的类型</typeparam>
+    /// <returns>值结果</returns>
+    /// <exception cref="NullReferenceException">参数为空</exception>
+    public async IAsyncEnumerable<T> ReadValuesAsync<T>(List<NodeId> nodeIds)
+    {
+        if (Session is null) throw new NullReferenceException("Session is Null");
+
+        var (dataValueCollection, _) = await Session.ReadValuesAsync(nodeIds);
+
+        if (dataValueCollection is null) yield break;
+
+        foreach (var dataValue in dataValueCollection.Where(dataValue => dataValue is not null))
+        {
+            yield return (T)dataValue.Value;
+        }
+    }
+
+    /// <summary>
+    /// 写入一个值
+    /// </summary>
+    /// <param name="nodeId">节点的ID</param>
+    /// <param name="value">节点的值</param>
+    /// <typeparam name="T">值类型</typeparam>
+    public async void WriteValue<T>(NodeId nodeId, T value)
+    {
+        if (Session is null) throw new NullReferenceException("Session is Null");
+
+        var valueToWrite = new WriteValue
+        {
+            NodeId = nodeId,
+            AttributeId = Attributes.Value,
+            Value =
+            {
+                Value = value,
+                StatusCode = StatusCodes.Good,
+                ServerTimestamp = DateTime.MinValue,
+                SourceTimestamp = DateTime.MinValue
+            }
+        };
+        var valuesToWrite = new WriteValueCollection
+        {
+            valueToWrite
+        };
+
+        var _ = await Session.WriteAsync(null, valuesToWrite, CancellationToken.None);
+    }
+
+    #endregion
+
+    #region PubSub Subscribe
+
+    /// <summary>
+    /// 订阅数据改变
+    /// </summary>
+    /// <param name="key">订阅的组ID</param>
+    /// <param name="nodeModels">节点模型</param>
+    /// <param name="changeCallBack">数据改变回调</param>
+    /// <exception cref="NullReferenceException">参数为空</exception>
     public void SubscribeToDataChanges(Guid key, IList<NodeModel> nodeModels,
         Action<MonitoredItem, MonitoredItemNotificationEventArgs> changeCallBack)
     {
-        if (_session is null) throw new NullReferenceException("Session is Null");
+        if (Session is null) throw new NullReferenceException("Session is Null");
 
-        var subscription = new Subscription(_session.DefaultSubscription)
+        var subscription = new Subscription(Session.DefaultSubscription)
         {
             DisplayName = key.ToString(),
             PublishingEnabled = true,
@@ -249,13 +407,13 @@ public class UAClient : IDisposable
             MaxNotificationsPerPublish = uint.MaxValue,
             Priority = 100
         };
-        
-        _session.AddSubscription(subscription);
+
+        Session.AddSubscription(subscription);
         subscription.Create();
 
         foreach (var nodeModel in nodeModels)
         {
-            var itme = new MonitoredItem(subscription.DefaultItem)
+            var item = new MonitoredItem(subscription.DefaultItem)
             {
                 StartNodeId = nodeModel.NodeId,
                 AttributeId = Attributes.Value,
@@ -264,21 +422,25 @@ public class UAClient : IDisposable
                 QueueSize = 10,
                 DiscardOldest = true
             };
-            itme.Notification += changeCallBack.Invoke;
+            item.Notification += changeCallBack.Invoke;
 
-            subscription.AddItem(itme);
+            subscription.AddItem(item);
         }
 
         subscription.ApplyChanges();
         _subscriptionsDictionary.Add(key, subscription);
     }
 
+    #endregion
+
+    #region Private Methods
+
     // 获取节点引用的描述
     private ReferenceDescriptionCollection GetReferenceDescriptionCollection(NodeId? sourceId)
     {
         var result = new ReferenceDescriptionCollection();
 
-        if (_session is null) return result;
+        if (Session is null) return result;
 
         var browseTemplate = new BrowseDescription
         {
@@ -291,7 +453,7 @@ public class UAClient : IDisposable
         };
         var browseDescriptionCollection = new BrowseDescriptionCollection { browseTemplate };
 
-        _session.Browse(null, null, (uint)RequestMaxNodeCountPerNode, browseDescriptionCollection,
+        Session.Browse(null, null, (uint)RequestMaxNodeCountPerNode, browseDescriptionCollection,
             out var browseResultCollection, out var diagnosticsInfoCollection);
         ClientBase.ValidateResponse(browseResultCollection, browseDescriptionCollection);
         ClientBase.ValidateDiagnosticInfos(diagnosticsInfoCollection, browseDescriptionCollection);
@@ -329,7 +491,7 @@ public class UAClient : IDisposable
         while (continuationPoints.Count > 0)
         {
             // continue browse operation.
-            _session.BrowseNext(null, true, continuationPoints, out var results, out var diagnosticInfos);
+            Session.BrowseNext(null, true, continuationPoints, out var results, out var diagnosticInfos);
 
             ClientBase.ValidateResponse(results, continuationPoints);
             ClientBase.ValidateDiagnosticInfos(diagnosticInfos, continuationPoints);
@@ -362,4 +524,6 @@ public class UAClient : IDisposable
 
         return result;
     }
+
+    #endregion
 }

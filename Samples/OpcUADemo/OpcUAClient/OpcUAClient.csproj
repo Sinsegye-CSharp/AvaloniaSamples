@@ -9,8 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Models\" />
         <AvaloniaResource Include="Assets\**" />
+        <Folder Include="OPC\pki\own\certs" />
+        <Folder Include="OPC\pki\trusted\certs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +26,7 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.19" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.19" />
         <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.19" />
+        <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-beta.701" />
         <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.4.371.60" />
         <PackageReference Include="ReactiveUI.Fody" Version="18.4.26" />
         <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
@@ -36,6 +38,15 @@
       </None>
       <None Update="app.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="OPC\pki\trusted\certs\OPCUAServer@sii-ret [B2B70C26F4DEB5D7A4817E73F56DFC8D38EC107D].der">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="OPC\pki\own\certs\OpcUa Client [49AC5D9DC29D3C0AC0885E6B77901913BDB340CF].der">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="OPC\pki\own\private\OpcUa Client [49AC5D9DC29D3C0AC0885E6B77901913BDB340CF].pfx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 </Project>

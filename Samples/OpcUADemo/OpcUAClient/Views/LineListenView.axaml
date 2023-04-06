@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:OpcUAClient.ViewModels"
+             xmlns:liv="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="450"
+             x:Class="OpcUAClient.Views.LineListenView" x:DataType="vm:LineListenViewModel">
+    <Design.DataContext>
+        <vm:LineListenViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" MinWidth="200" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" MinWidth="500" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,0,0,10" Orientation="Horizontal">
+            <Label VerticalContentAlignment="Center">服务器地址：</Label>
+            <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="300" Margin="0,0,20,0"
+                     Text="{Binding ServerPath}" />
+
+            <Label VerticalContentAlignment="Center">用户名：</Label>
+            <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="150" Margin="0,0,20,0"
+                     Text="{Binding UserName}" />
+
+            <Label VerticalContentAlignment="Center">密码：</Label>
+            <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="150" Margin="0,0,20,0"
+                     Text="{Binding Password}" />
+
+            <Button Content="连接" VerticalContentAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                    Command="{Binding ConnectionServerAsync}" />
+            <Button Content="断开" VerticalContentAlignment="Center" VerticalAlignment="Center"
+                    Command="{Binding DisconnectAsync}" />
+        </StackPanel>
+
+        <TreeView Grid.Row="1" Grid.Column="0" BorderThickness="2" BorderBrush="#CCCCCC" Items="{Binding NodeTree}">
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="ContextMenu">
+                        <ContextMenu>
+                            <MenuItem Header="添加订阅"
+                                      Command="{ReflectionBinding $parent[TreeView].DataContext.AddSubscribe}"
+                                      CommandParameter="{Binding}" />
+                            <MenuItem Header="移除订阅"
+                                      Command="{ReflectionBinding $parent[TreeView].DataContext.RemoveSubscribe}"
+                                      CommandParameter="{Binding}" />
+                            <MenuItem Header="添加到重点监听"
+                                      Command="{ReflectionBinding $parent[TreeView].DataContext.AddToImportantListen}"
+                                      CommandParameter="{Binding}" />
+                            <MenuItem Header="移除重点监听"
+                                      Command="{ReflectionBinding $parent[TreeView].DataContext.RemoveImportantListen}"
+                                      CommandParameter="{Binding}" />
+                        </ContextMenu>
+                    </Setter>
+                </Style>
+            </TreeView.Styles>
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Child}">
+                    <StackPanel Orientation="Horizontal">
+                        <Panel Width="12" Margin="12,0">
+                            <ToggleButton Classes="ExpandCollapseChevron" Focusable="False"
+                                          IsVisible="{Binding HasChild}"
+                                          IsChecked="{Binding $parent[TreeViewItem].IsExpanded}"
+                                          Command="{ReflectionBinding $parent[TreeView].DataContext.Expand}"
+                                          CommandParameter="{Binding}" />
+                        </Panel>
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+        <GridSplitter Grid.Row="1" Grid.Column="1" BorderThickness="1" HorizontalAlignment="Center"
+                      Background="#CCCCCC" />
+        <liv:CartesianChart Grid.Row="1" Grid.Column="2" Margin="50" Series="{Binding CartesianChartLineSeries}"
+                            YAxes="{Binding CartesianChartYAxis}"
+                            TooltipTextPaint="{Binding TooltipTextPaint}" AnimationsSpeed="00:00:00.500"
+                            XAxes="{Binding CartesianLineChartXAxis}" />
+
+        <DockPanel Grid.Row="1" Grid.Column="4">
+
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="开始监听" Command="{Binding StartDraw}" Margin="0,0,5,0" />
+                <Button Content="结束监听" Command="{Binding StopDraw}" Margin="5,0,0,0" />
+            </StackPanel>
+
+            <Border DockPanel.Dock="Top" Height="1" Background="#CCCCCC" Margin="0,10" />
+
+            <Label DockPanel.Dock="Top">重点值监视区：</Label>
+            <ListBox DockPanel.Dock="Top" Items="{Binding ImportantListenModelCollection}">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                </ListBox.Styles>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <TextBlock Text="{Binding Name,StringFormat='{}{0}:'}" VerticalAlignment="Center" />
+                            <TextBox Text="{Binding Value}" VerticalAlignment="Center"
+                                     VerticalContentAlignment="Center" />
+                            <Button Content="修改" Command="{ReflectionBinding $parent[ListBox].DataContext.ModifyValue}"
+                                    CommandParameter="{Binding}"
+                                    HorizontalAlignment="Right" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border DockPanel.Dock="Top" Height="1" Background="#CCCCCC" Margin="0,10" />
+
+            <Label DockPanel.Dock="Top">曲线监听值列表:</Label>
+            <ListBox DockPanel.Dock="Top" BorderThickness="1" BorderBrush="#CCCCCC" HorizontalAlignment="Stretch"
+                     Items="{Binding ListenModeCollection}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" ToolTip.Tip="{Binding NodeId}">
+                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="{Binding NodeId,StringFormat='({0})'}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+    </Grid>
+
+</UserControl>

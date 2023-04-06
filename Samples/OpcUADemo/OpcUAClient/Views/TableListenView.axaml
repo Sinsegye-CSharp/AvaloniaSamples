@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+             xmlns:vm="clr-namespace:OpcUAClient.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OpcUAClient.Views.TableListenView" x:DataType="vm:TableListenViewModel">
+    <Design.DataContext>
+        <vm:TableListenViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" MinWidth="200" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" MinWidth="500" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,0,0,10" Orientation="Horizontal">
+            <Label VerticalContentAlignment="Center">服务器地址：</Label>
+            <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="300" Margin="0,0,20,0"
+                     Text="{Binding ServerPath}" />
+
+            <Label VerticalContentAlignment="Center">用户名：</Label>
+            <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="150" Margin="0,0,20,0"
+                     Text="{Binding UserName}" />
+
+            <Label VerticalContentAlignment="Center">密码：</Label>
+            <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="150" Margin="0,0,20,0"
+                     Text="{Binding Password}" />
+
+            <Button Content="连接" VerticalContentAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                    Command="{Binding ConnectionServerAsync}" />
+            <Button Content="断开" VerticalContentAlignment="Center" VerticalAlignment="Center"
+                    Command="{Binding DisconnectAsync}" />
+        </StackPanel>
+
+        <TreeView Grid.Row="1" Grid.Column="0" BorderThickness="2" BorderBrush="#CCCCCC" Items="{Binding NodeTree}">
+            <i:Interaction.Behaviors>
+                <ia:EventTriggerBehavior EventName="SelectionChanged">
+                    <ia:InvokeCommandAction Command="{Binding GetNodeInfo}" PassEventArgsToCommand="True" />
+                </ia:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Child}">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="添加订阅" Command="{ReflectionBinding  $parent[TreeView].DataContext.AddSubscribe}"
+                                          CommandParameter="{Binding}" />
+                                <MenuItem Header="移除订阅" />
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>
+                        <Panel Width="12" Margin="12,0">
+                            <ToggleButton Classes="ExpandCollapseChevron" Focusable="False"
+                                          IsVisible="{Binding HasChild}"
+                                          IsChecked="{Binding $parent[TreeViewItem].IsExpanded}"
+                                          Command="{ReflectionBinding $parent[TreeView].DataContext.Expand}"
+                                          CommandParameter="{Binding}" />
+                        </Panel>
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+        <GridSplitter Grid.Row="1" Grid.Column="1" BorderThickness="1" HorizontalAlignment="Center"
+                      Background="#CCCCCC" />
+
+        <DataGrid Grid.Row="1" Grid.Column="2" BorderThickness="2" BorderBrush="#CCCCCC"
+                  Items="{Binding ListenNodeInfos}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Node Id" Binding="{ReflectionBinding NodeId}"/>
+                <DataGridTextColumn Header="名称" Binding="{ReflectionBinding Name}"/>
+                <DataGridTextColumn Header="值" Binding="{ReflectionBinding Value}"/>
+                <DataGridTextColumn Header="类型" Binding="{ReflectionBinding Type}"/>
+                <DataGridTextColumn Header="描述" Binding="{ReflectionBinding Description}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Border Grid.Row="1" Grid.Column="4" BorderThickness="2" BorderBrush="#CCCCCC" VerticalAlignment="Top">
+            <Grid ShowGridLines="True" ColumnDefinitions="Auto,*" RowDefinitions="30,30,30,30,30">
+                <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="10,0">Node Id</Label>
+                <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="10,0">名称</Label>
+                <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="10,0">值</Label>
+                <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="10,0">类型</Label>
+                <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="10,0">描述</Label>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="10,0"
+                           Text="{Binding SelectedNodeInfo.NodeId}" TextTrimming="CharacterEllipsis"
+                           ToolTip.Tip="{Binding SelectedNodeInfo.NodeId}" />
+                <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="10,0"
+                           Text="{Binding SelectedNodeInfo.Name}" />
+                <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="10,0"
+                           Text="{Binding SelectedNodeInfo.Value}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Margin="10,0"
+                           Text="{Binding SelectedNodeInfo.Type}" />
+                <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Margin="10,0"
+                           Text="{Binding SelectedNodeInfo.Description}" />
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>
