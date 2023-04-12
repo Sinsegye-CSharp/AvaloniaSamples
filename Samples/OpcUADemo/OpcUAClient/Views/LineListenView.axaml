@@ -31,10 +31,12 @@
             <TextBox VerticalContentAlignment="Center" VerticalAlignment="Center" Width="150" Margin="0,0,20,0"
                      Text="{Binding Password}" />
 
-            <Button Content="连接" VerticalContentAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+            <Button Content="连接" VerticalContentAlignment="Center" VerticalAlignment="Center"
                     Command="{Binding ConnectionServerAsync}" />
-            <Button Content="断开" VerticalContentAlignment="Center" VerticalAlignment="Center"
+            <Button Content="断开" VerticalContentAlignment="Center" VerticalAlignment="Center" Margin="10,0"
                     Command="{Binding DisconnectAsync}" />
+            <Button Content="设置" VerticalContentAlignment="Center" VerticalAlignment="Center"
+                    Command="{Binding OpenSettingWindow}" />
         </StackPanel>
 
         <TreeView Grid.Row="1" Grid.Column="0" BorderThickness="2" BorderBrush="#CCCCCC" Items="{Binding NodeTree}">

@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:vm="clr-namespace:OpcUAClient.ViewModels"
+        x:Class="OpcUAClient.Views.SettingWindowView" SizeToContent="WidthAndHeight"
+        Title="设置" x:CompileBindings="True" x:DataType="vm:SettingWindowViewModel" CanResize="False">
+    <Design.DataContext>
+        <vm:SettingWindowViewModel />
+    </Design.DataContext>
+    <Window.Styles>
+        <Style Selector="Label">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </Window.Styles>
+    <StackPanel Orientation="Vertical" Margin="20">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+            <Label>数据获取周期：</Label>
+            <TextBox Text="{Binding AcquisitionCycle}" />
+            <Label>秒</Label>
+        </StackPanel>
+
+        <CheckBox Content="开启数据缓存" Margin="0,0,0,10" IsChecked="{Binding IsSaveToDatabase}" />
+
+        <Grid RowDefinitions="*,10,*" ColumnDefinitions="*,*,*" IsEnabled="{Binding IsSaveToDatabase}">
+            <DockPanel Grid.ColumnSpan="2">
+                <Label>数据库地址：</Label>
+                <TextBox Text="{Binding  DatabasePath}" />
+            </DockPanel>
+            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+                <Label>数据库端口：</Label>
+                <TextBox Text="{Binding Port}" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                <Label>数据库名称：</Label>
+                <TextBox Text="{Binding  DatabaseName}" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
+                <Label>数据库用户名：</Label>
+                <TextBox Text="{Binding  User}" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+                <Label>数据库密码：</Label>
+                <TextBox Text="{Binding  Password}" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Center">
+            <Button Content="确定" Command="{Binding  OkCommand}" Margin="0,0,10,0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

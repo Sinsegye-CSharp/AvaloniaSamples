@@ -15,13 +15,10 @@ namespace OpcUAClient.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    [Reactive] public TableListenViewModel TableListenViewModel { get; set; }
-    
     [Reactive] public LineListenViewModel LineListenViewModel { get; set; }
 
     public MainWindowViewModel()
     {
-        TableListenViewModel = new TableListenViewModel();
         LineListenViewModel = new LineListenViewModel();
     }
 }

@@ -49,4 +49,8 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpcUAClient.Repository\OpcUAClient.Repository.csproj" />
+    </ItemGroup>
 </Project>
