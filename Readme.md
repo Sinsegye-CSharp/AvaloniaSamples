@@ -15,4 +15,4 @@
 |[LineDemo](./Samples/LineDemo)|曲线绘制相关Demo|
 |[MVSCameraDemo](./Samples/MVSCameraDemo)|海康工业相机连接Demo，提供C#调用海康C语言SDK示例以及调用海康相机显示实时视频流、存储图片的功能|
 |[OpcUADemo](./Samples/OpcUADemo/OpcUAClient)|连接OPC UA服务端的Demo，提供OPC UA客户端，具有曲线绘制等相关功能|
-### 更多Avalonia开发资料及相应问题，请参阅[Wiki](https://sinsegye-csharp.github.io/avalonia-doc)
+### 更多Avalonia开发资料及相应问题，请参阅[知识文档](https://sinsegye-csharp.github.io/avalonia-doc)
