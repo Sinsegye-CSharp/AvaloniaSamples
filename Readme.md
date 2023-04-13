@@ -5,14 +5,14 @@
 
 ## 目录介绍
 本资料包含两部分内容:   
-  * [Samples](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/tree/main/Samples)：此目录下包含使用Avalonia开发的一些常用的Demo，可以下载进行参阅。  
+  * [Samples](./Samples)：此目录下包含使用Avalonia开发的一些常用的Demo，可以下载进行参阅。  
 
 
 ## Demo列表
 
 | 名称 | 介绍 |
 |---|---|
-|[LineDemo](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/tree/main/Samples/LineDemo)|曲线绘制相关Demo|
-|[MVSCameraDemo](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/tree/main/Samples/MVSCameraDemo)|海康工业相机连接Demo，提供C#调用海康C语言SDK示例以及调用海康相机显示实时视频流、存储图片的功能|
-|[OpcUADemo](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/tree/main/Samples/OpcUADemo/OpcUAClient)|连接OPC UA服务端的Demo，提供OPC UA客户端，具有曲线绘制等相关功能|
-### 更多Avalonia开发资料及相应问题，请参阅[Wiki](http://gitlab.sinsegye.com.cn/samples/avalonia-samples/-/wikis/home)
+|[LineDemo](./Samples/LineDemo)|曲线绘制相关Demo|
+|[MVSCameraDemo](./Samples/MVSCameraDemo)|海康工业相机连接Demo，提供C#调用海康C语言SDK示例以及调用海康相机显示实时视频流、存储图片的功能|
+|[OpcUADemo](./Samples/OpcUADemo/OpcUAClient)|连接OPC UA服务端的Demo，提供OPC UA客户端，具有曲线绘制等相关功能|
+### 更多Avalonia开发资料及相应问题，请参阅[Wiki](https://sinsegye-csharp.github.io/avalonia-doc)
