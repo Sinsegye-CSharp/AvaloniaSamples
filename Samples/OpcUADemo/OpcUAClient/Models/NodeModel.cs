@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using Opc.Ua;
 
 namespace OpcUAClient.Models;
 

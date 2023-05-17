@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Metadata;
 using Avalonia.Threading;
 using DynamicData;
@@ -16,6 +18,9 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using Opc.Ua;
 using Opc.Ua.Configuration;
 using OpcUAClient.Models;
+using OpcUAClient.Repository;
+using OpcUAClient.Repository.Models;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SkiaSharp;
 
@@ -32,7 +37,7 @@ public class LineListenViewModel : ViewModelBase
     private readonly UaClient? _client;
 
     // 图表中绘制的曲线
-    private readonly List<ObservableCollection<DateTimePoint>> _observableCollections;
+    private readonly List<ObservableCollection<DateTimePoint>> _observableCollections = new();
 
     // 是否第一次绘制图表
     private bool _isFirst;
@@ -42,6 +47,9 @@ public class LineListenViewModel : ViewModelBase
 
     // 数值计时器，用来控制请求Server数据的时间间隔
     private readonly DispatcherTimer _valueTimer;
+
+    // 数据记录设置
+    private DataRecordSettingModel _recordSetting = new();
 
     #endregion
 
@@ -68,12 +76,12 @@ public class LineListenViewModel : ViewModelBase
     /// <summary>
     /// 节点树
     /// </summary>
-    public ObservableCollection<NodeModel> NodeTree { get; set; }
+    public ObservableCollection<NodeModel> NodeTree { get; set; } = new();
 
     /// <summary>
     /// 监听的曲线列表
     /// </summary>
-    public ObservableCollection<NodeModel> ListenModeCollection { get; set; }
+    public ObservableCollection<NodeModel> ListenModeCollection { get; set; } = new();
 
     /// <summary>
     /// 折线图X轴设置
@@ -88,22 +96,26 @@ public class LineListenViewModel : ViewModelBase
     /// <summary>
     /// 折线图曲线
     /// </summary>
-    public ObservableCollection<ISeries> CartesianChartLineSeries { get; set; }
+    public ObservableCollection<ISeries> CartesianChartLineSeries { get; set; } = new();
 
     /// <summary>
     /// 提示框绘制设置
     /// </summary>
-    public SolidColorPaint TooltipTextPaint { get; set; } =
-        new()
-        {
-            Color = SKColors.Black,
-            SKTypeface = SKFontManager.Default.MatchCharacter('汉'),
-        };
+    public SolidColorPaint TooltipTextPaint { get; set; } = new()
+    {
+        Color = SKColors.Black,
+        SKTypeface = SKFontManager.Default.MatchCharacter('汉'),
+    };
 
     /// <summary>
     /// 重点监视的值
     /// </summary>
-    public ObservableCollection<NodeListenModel> ImportantListenModelCollection { get; set; }
+    public ObservableCollection<NodeListenModel> ImportantListenModelCollection { get; set; } = new();
+
+    /// <summary>
+    /// 打开设置窗体
+    /// </summary>
+    public Interaction<SettingWindowViewModel, DataRecordSettingModel?> OpenSettingDialog { get; } = new();
 
     #endregion
 
@@ -125,8 +137,6 @@ public class LineListenViewModel : ViewModelBase
 
         var _ = app.CheckApplicationInstanceCertificate(false, 0).Result;
         _client = new UaClient(configuration, null);
-        NodeTree = new ObservableCollection<NodeModel>();
-        ListenModeCollection = new ObservableCollection<NodeModel>();
 
         _chartTimer = new DispatcherTimer
         {
@@ -171,11 +181,6 @@ public class LineListenViewModel : ViewModelBase
                 Labeler = value => value.ToString(CultureInfo.InvariantCulture)
             }
         };
-
-        CartesianChartLineSeries = new ObservableCollection<ISeries>();
-
-        _observableCollections = new List<ObservableCollection<DateTimePoint>>();
-        ImportantListenModelCollection = new ObservableCollection<NodeListenModel>();
     }
 
     #endregion
@@ -199,23 +204,34 @@ public class LineListenViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// 加载节点树
-    /// </summary>
-    public void LoadNodeTree()
-    {
-        if (_client is null) return;
-
-        var nodes = _client.GetChildNodes(null);
-        NodeTree.AddRange(nodes);
-    }
-
-    /// <summary>
     /// 断开连接
     /// </summary>
     public async Task DisconnectAsync()
     {
         if (_client is null) return;
         await _client.DisconnectAsync();
+    }
+
+    /// <summary>
+    /// 打开设置窗体
+    /// </summary>
+    public async void OpenSettingWindow()
+    {
+        var model = new SettingWindowViewModel
+        {
+            AcquisitionCycle = _recordSetting.AcquisitionCycle,
+            IsSaveToDatabase = _recordSetting.IsSaveToDatabase,
+            DatabasePath = _recordSetting.DatabasePath,
+            DatabaseName = _recordSetting.DatabaseName,
+            Port = _recordSetting.Port,
+            User = _recordSetting.User,
+            Password = _recordSetting.Password
+        };
+
+        var result = await OpenSettingDialog.Handle(model);
+        if (result is null) return;
+
+        this._recordSetting = result;
     }
 
     /// <summary>
@@ -231,6 +247,8 @@ public class LineListenViewModel : ViewModelBase
 
         node.Child.AddRange(childNodes);
     }
+
+    #region Context Menu Command
 
     /// <summary>
     /// 添加订阅
@@ -327,6 +345,8 @@ public class LineListenViewModel : ViewModelBase
 
     public bool CanRemoveImportantListen(object parameter) =>
         parameter is NodeModel nodeModel && ImportantListenModelCollection.Any(n => n.NodeId == nodeModel.NodeId);
+
+    #endregion
 
     /// <summary>
     /// 开始绘制图表
@@ -440,6 +460,15 @@ public class LineListenViewModel : ViewModelBase
 
     #region Private Methods
 
+    // 加载节点树
+    private void LoadNodeTree()
+    {
+        if (_client is null) return;
+
+        var nodes = _client.GetChildNodes(null);
+        NodeTree.AddRange(nodes);
+    }
+
     // 按照时间获取图表需要绘制的值
     private async void GetChartValue(object? sender, EventArgs args)
     {
@@ -481,6 +510,23 @@ public class LineListenViewModel : ViewModelBase
             var value = dataValueCollection[i].WrappedValue.Value.ToString() ?? "0";
 
             ImportantListenModelCollection[i].Value = value;
+        }
+
+        if (!_recordSetting.IsSaveToDatabase) return;
+        var repository = AvaloniaLocator.Current.GetService<IRepository>();
+        if (repository is null) return;
+        
+        for (var i = 0; i < dataValueCollection.Count; i++)
+        {
+            var value = dataValueCollection[i].WrappedValue.Value.ToString() ?? "0";
+
+            var data = new HistoryDataModel
+            {
+                NodeId = ImportantListenModelCollection[i].NodeId,
+                NodeName = ImportantListenModelCollection[i].Name,
+                NodeValue = float.Parse(value)
+            };
+            await repository.UseSource(_recordSetting.DatabaseConnectionString).AddData(data);
         }
     }
 
